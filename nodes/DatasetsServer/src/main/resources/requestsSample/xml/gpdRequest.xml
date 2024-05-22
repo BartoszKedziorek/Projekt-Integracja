@@ -1,0 +1,10 @@
+<GPDRequest>
+    <Country>
+        <Code>ABW</Code>
+        <Name>Aruba</Name>
+    </Country>
+    <DateRange>
+        <DateStart>2006-07-03</DateStart>
+        <DateEnd>2006-07-07</DateEnd>
+    </DateRange>
+</GPDRequest>
