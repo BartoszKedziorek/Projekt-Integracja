@@ -41,7 +41,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'api'
+    'users',
+    'rest_framework.authtoken'
 ]
 
 MIDDLEWARE = [
@@ -120,6 +121,12 @@ USE_I18N = True
 
 USE_TZ = True
 
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': [
+        'rest_framework.authentication.TokenAuthentication',  # Add this line
+    ],
+}
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.0/howto/static-files/
