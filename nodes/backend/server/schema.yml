@@ -29,7 +29,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserLogin'
+                $ref: '#/components/schemas/LoginSuccessResponse'
           description: ''
   /logout:
     post:
@@ -40,7 +40,11 @@ paths:
       - tokenAuth: []
       responses:
         '200':
-          description: No response body
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LogoutSuccessResponse'
+          description: ''
   /register:
     post:
       operationId: register_create
@@ -66,32 +70,57 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserRegister'
+                $ref: '#/components/schemas/RegisterSuccessResponse'
           description: ''
 components:
   schemas:
+    LoginSuccessResponse:
+      type: object
+      properties:
+        username:
+          type: string
+        token:
+          type: string
+      required:
+      - token
+      - username
+    LogoutSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        detail:
+          type: string
+      required:
+      - detail
+      - success
+    RegisterSuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        user:
+          $ref: '#/components/schemas/UserRegister'
+        token:
+          type: string
+      required:
+      - success
+      - token
+      - user
     UserLogin:
       type: object
       properties:
-        id:
-          type: integer
-          readOnly: true
         username:
           type: string
-          readOnly: true
         password:
           type: string
           writeOnly: true
       required:
-      - id
       - password
       - username
     UserRegister:
       type: object
       properties:
-        id:
-          type: integer
-          readOnly: true
         username:
           type: string
         first_name:
@@ -110,7 +139,6 @@ components:
       required:
       - email
       - first_name
-      - id
       - last_name
       - password
       - password2
