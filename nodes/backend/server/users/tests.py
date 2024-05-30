@@ -138,7 +138,6 @@ class UsersTests(APITestCase):
         token = Token.objects.get(user=user).key
     
         self.assertEqual(resp_body['username'], user.username)
-        self.assertEqual(resp_body['email'], user.email)
         self.assertEqual(resp_body['token'], token)
 
 

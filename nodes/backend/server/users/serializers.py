@@ -3,17 +3,16 @@ from django.contrib.auth.models import User
 from rest_framework.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.authtoken.models import Token
+from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(read_only=True)
-    username = serializers.CharField(read_only=True)
+    username = serializers.CharField()
     password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'password']
-
+        fields = ['username', 'password']
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -27,7 +26,7 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'username', 'first_name',
+        fields = ['id','username', 'first_name',
                   'last_name', 'email', 'password',
                   'password2']
         extra_kwargs = {
