@@ -43,11 +43,11 @@ class UsersTests(APITestCase):
             'password2': 'pas123'
         }
         resp = self.client.post(self.registerUrl, body)
-        
-        token = Token.objects.get(user_id = resp.json().get('user').get('id')).key
         resp_body = resp.json()
 
-        del resp_body['user']['id']
+        user = User.objects.get(username = resp_body['user']['username'])
+        token = Token.objects.get(user = user).key
+    
         del body['password']
         del body['password2']
         self.assertEqual(resp_body.get('user'), body)

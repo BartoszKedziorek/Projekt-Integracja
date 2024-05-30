@@ -9,18 +9,29 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.utils import extend_schema, OpenApiParameter, inline_serializer
 
 # serializers
 from .serializers import UserRegisterSerializer
 from .serializers import UserLoginSerializer
+from rest_framework import serializers
+from rest_framework.authentication import TokenAuthentication
+
 
 class UserLoginAPIView(APIView):
     serializer_class = UserLoginSerializer
 
     @extend_schema(
             request=serializer_class,
-            responses=serializer_class
+            responses={
+                200: inline_serializer(
+                    name="LoginSuccessResponse",
+                    fields={
+                        'username': serializers.CharField(),
+                        'token': serializers.CharField()
+                    }
+                )            
+            }
     )
     def post(self, request, *args, **kwargs):
         serializer = UserLoginSerializer(data=request.data)
@@ -42,7 +53,15 @@ class UserLoginAPIView(APIView):
 class UserRegisterAPIView(APIView):
     serializer_class = UserRegisterSerializer
 
-    @extend_schema(request=UserRegisterSerializer)
+    @extend_schema(request=UserRegisterSerializer,
+                   responses={
+                       200: inline_serializer(name='RegisterSuccessResponse',
+                                              fields={
+                                                  'success': serializers.BooleanField(),
+                                                  'user': UserRegisterSerializer(),
+                                                  'token': serializers.CharField()
+                                              })
+                   })
     def post(self, request, *args, **kwargs):
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -61,6 +80,13 @@ class UserLogoutAPIView(APIView):
     serializer_class = None
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(responses={
+        200:inline_serializer(name='LogoutSuccessResponse',
+                              fields={
+                                  'success': serializers.BooleanField(),
+                                  'detail': serializers.CharField()
+                              })
+    })
     def post(self, request, *args):
         token = Token.objects.get(user=request.user)
         token.delete()

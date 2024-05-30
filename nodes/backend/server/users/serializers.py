@@ -16,7 +16,6 @@ class UserLoginSerializer(serializers.ModelSerializer):
 
 
 class UserRegisterSerializer(serializers.ModelSerializer):
-    id = serializers.PrimaryKeyRelatedField(read_only=True)
     username = serializers.CharField()
     first_name = serializers.CharField()
     last_name = serializers.CharField()
@@ -26,13 +25,9 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id','username', 'first_name',
+        fields = ['username', 'first_name',
                   'last_name', 'email', 'password',
                   'password2']
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
-    
     
     def validate_username(sefl, username):
         if User.objects.filter(username=username).exists():
