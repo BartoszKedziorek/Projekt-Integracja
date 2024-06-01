@@ -34,8 +34,8 @@ services:
     build:
       dockerfile: DockerfileDB
       context: .
-    environment:
-      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+    #environment:
+    #  POSTGRES_PASSWORD: "${DB_PASSWORD}"
     # volumes:
     #  - ./db_dumps/world.sql:/docker-entrypoint-initdb.d/world.sql
     # command: --default-authentication-plugin=mysql_native_password
