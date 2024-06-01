@@ -1,0 +1,57 @@
+version: '3.8'
+services:
+
+  app:
+    env_file:
+    - path: ./compose.env
+      required: true
+
+    container_name: pri_rest_server
+    ports:
+      - "8001:8000"
+    depends_on:
+      db:
+        condition: service_healthy 
+    build:
+      dockerfile: DockerfileSR
+      context: .
+    # environment:
+    #   DEST_DIR: "${DEST_DIR}"
+    #   DB_USERNAME: "${DB_USERNAME}"
+    #   DB_PASSWORD: "${DB_PASSWORD}"
+    #   DB_HOSTNAME: db
+    #   DB_NAME: "${DB_NAME}"
+    #   POSTGRES_PASSWORD: "${DB_PASSWORD}"
+    #volumes:
+     # - ./rest_api:/var/www/html
+
+  db:
+    env_file:
+    - path: ./compose.env
+      required: true
+
+    container_name: pri_db_server
+    build:
+      dockerfile: DockerfileDB
+      context: .
+    environment:
+      POSTGRES_PASSWORD: "${DB_PASSWORD}"
+    # volumes:
+    #  - ./db_dumps/world.sql:/docker-entrypoint-initdb.d/world.sql
+    # command: --default-authentication-plugin=mysql_native_password
+    healthcheck:
+      test: ["CMD", "psql"]
+      #interval: 1m30s
+      #timeout: 10s
+      #retries: 3
+      start_period: 10s
+      # start_interval: 10s
+    ports:
+      - "5431:5432"
+
+  
+
+  
+  
+    
+    

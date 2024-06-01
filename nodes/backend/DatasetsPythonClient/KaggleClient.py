@@ -19,4 +19,3 @@ class KaggleClient(WebClient):
         except Exception as e:
             print("Wystąpił problem podczas pobierania datasetu: {src}")
             raise e
-        

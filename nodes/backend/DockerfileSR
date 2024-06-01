@@ -1,0 +1,36 @@
+FROM python:3.11.9-bookworm
+
+# ustawienie zmiennej środowiskowej zawierającej katalog aplikacji
+ENV APPDIR=/home/app/webapp  
+
+# stworzenie katatlogu aplikacji
+RUN mkdir -p $APPDIR  
+
+# przejście do katalogu aplikacji
+WORKDIR $APPDIR 
+
+# ustawienie zmiennych środowiskowych
+ENV PYTHONDONTWRITEBYTECODE 1
+ENV PYTHONUNBUFFERED 1  
+
+# instalacja zależności  
+RUN pip install --upgrade pip && \
+    apt update && \
+    apt-get -y install curl
+
+# skopiowanie plików projektu 
+COPY /server/. $APPDIR
+COPY requirements.txt requirements.txt
+COPY DatasetsPythonClient DatasetsPythonClient
+
+# instalacja wszystkich zależności  
+RUN pip install -r requirements.txt
+
+# oznaczenie wystawianego portu  
+EXPOSE 8000  
+
+COPY load_and_run.sh .
+RUN chmod +x load_and_run.sh
+CMD ./load_and_run.sh
+# wystartowanie serwera  
+#CMD [ "python", "./DatasetsPythonClient/load_countries.py" , ";", "python", "manage.py", "runserver", "0.0.0.0:8000"]

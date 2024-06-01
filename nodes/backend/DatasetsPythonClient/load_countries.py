@@ -7,9 +7,9 @@ from utils import parseXML
 from copy import copy
 
 files = [
-    os.getcwd() + '/data/internet.csv',
-    os.getcwd() + '/data/population.xml',
-    os.getcwd() + '/data/unemployment.xml'
+    os.getcwd() + '/' + os.environ.get('DEST_DIR') + '/' + 'internet.csv',
+    os.getcwd() + '/' + os.environ.get('DEST_DIR') + '/' + 'population.xml',
+    os.getcwd() + '/' + os.environ.get('DEST_DIR') + '/' + 'unemployment.xml'
 ]
 
 countries_dict = {}
