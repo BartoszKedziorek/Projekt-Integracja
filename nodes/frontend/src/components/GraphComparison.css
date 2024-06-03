@@ -1,0 +1,17 @@
+.filters {
+    margin-bottom: 20px;
+}
+
+.filters label {
+    margin-right: 10px;
+}
+
+.chart-container {
+    display: flex;
+    justify-content: space-between;
+}
+
+.chart {
+    flex: 1;
+    margin-right: 10px;
+}
