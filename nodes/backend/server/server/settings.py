@@ -44,9 +44,12 @@ INSTALLED_APPS = [
     'users',
     'rest_framework.authtoken',
     'drf_spectacular',
+    'api',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware'
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
