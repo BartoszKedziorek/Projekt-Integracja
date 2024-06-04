@@ -1,35 +1,109 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .serializers import UnemploymentSerializer
+from .serializers import PopulationSerializer, UnemploymentSerializer
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Unemployment
+from .models import Unemployment, Population
+from drf_spectacular.utils import extend_schema, OpenApiParameter, inline_serializer
+from rest_framework import serializers
+from django.db.models import Model
 
+class MGenericAPIView(APIView):
+    model = Model
+    serializer_class = serializers.Serializer
 
-class UnemploymentAPIView(APIView):
     def get(self, request, *args, **kwargs):
-        required_params = ['year_start', 'year_end', 'value']
+        required_params = ['year_start', 'year_end', 'code']
         # check if quey container required parameters
         for param in required_params:
-            if param not in request.GET.keys():
+            if param not in request.query_params.keys():
                 return Response({
                     "message": "query parameter: {} is missing".format(param) 
                 },
                 status=status.HTTP_400_BAD_REQUEST) 
         
-        unemployments = Unemployment.objects.filter(country__code=request.GET['code']) \
+        unemployments = self.model.objects.filter(country__code=request.GET['code']) \
                         .filter(year__gte=request.GET['year_start']) \
-                        .filter(year__gte=request.GET['year_end'])
+                        .filter(year__lte=request.GET['year_end']) \
+                        .order_by('year').values()
 
-        serializer = UnemploymentSerializer(unemployments, many=True)
+        serializer = self.serializer_class(unemployments, many=True)
         response = {
             "code": request.GET['code'],
             "values": serializer.data
         }
         
-        return Response(response, status=status.HTTP_200_OK)
+        return Response(response, status=status.HTTP_200_OK)   
 
 
-        
+class UnemploymentAPIView(MGenericAPIView):
+    model = Unemployment
+    serializer_class = UnemploymentSerializer
+
+    @extend_schema(
+            parameters=[
+                OpenApiParameter(name="year_start", type=int, required=True),
+                OpenApiParameter(name="year_end", type=int, required=True),
+                OpenApiParameter(name="code", type=str, description="Country code", required=True)
+            ],
+            responses={
+                200: inline_serializer(
+                    name=model.__name__+"ResponseSuccess",
+                    fields={
+                        "code": serializers.CharField(),
+                        "values": inline_serializer(name=model.__name__+"ResponseValues",
+                            fields={
+                            "year": serializers.IntegerField(),
+                            "value": serializers.DecimalField(max_digits=6, decimal_places=3, coerce_to_string=False)
+                        }, many=True)
+                    }
+                ),
+                400: inline_serializer(
+                    name=model.__name__+"ResponseFailure",
+                    fields={
+                        "message": serializers.CharField()
+                    }
+                )
+            }
+    )
+
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+class PopulationAPIView(MGenericAPIView):
+    model = Population
+    serializer_class = PopulationSerializer
+
+
+    @extend_schema(
+            parameters=[
+                OpenApiParameter(name="year_start", type=int, required=True),
+                OpenApiParameter(name="year_end", type=int, required=True),
+                OpenApiParameter(name="code", type=str, description="Country code", required=True)
+            ],
+            responses={
+                200: inline_serializer(
+                    name=model.__name__+"ResponseSuccess",
+                    fields={
+                        "code": serializers.CharField(),
+                        "values": inline_serializer(name=model.__name__+"ResponseValues",
+                            fields={
+                            "year": serializers.IntegerField(),
+                            "value": serializers.IntegerField()
+                        }, many=True)
+                    }
+                ),
+                400: inline_serializer(
+                    name=model.__name__+"ResponseFailure",
+                    fields={
+                        "message": serializers.CharField()
+                    }
+                )
+            }
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
+
+
 
 

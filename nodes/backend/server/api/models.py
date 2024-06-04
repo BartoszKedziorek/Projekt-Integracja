@@ -5,7 +5,6 @@ class Country(models.Model):
     code = models.CharField(unique=True, max_length=10)
 
     class Meta:
-        managed = False
         db_table = 'country'
 
 
