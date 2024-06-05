@@ -1,12 +1,15 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .serializers import PopulationSerializer, UnemploymentSerializer, InternetSerializer
+from .serializers import PopulationSerializer, UnemploymentSerializer, InternetSerializer, CountrySerializer
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Unemployment, Population, Internet
+from .models import Unemployment, Population, Internet, Country
 from drf_spectacular.utils import extend_schema, OpenApiParameter, inline_serializer
 from rest_framework import serializers
 from django.db.models import Model
+from rest_framework import generics
+from django.shortcuts import get_object_or_404
+from django.core.exceptions import ObjectDoesNotExist
 
 class GetValuesFromRangeMixin(APIView):
     model = Model
@@ -134,4 +137,25 @@ class InternetAPIView(GetValuesFromRangeMixin):
     )
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
+    
 
+class ListCountryApiView(generics.ListAPIView):
+    queryset = Country.objects.all()
+    serializer_class = CountrySerializer
+
+
+class DetailCountryApiView(APIView):
+    @extend_schema(responses={
+        200: CountrySerializer,
+        400: inline_serializer(
+                    name="DetailCountryResponseFailure",
+                    fields={
+                        "message": serializers.CharField()
+                    }
+                )
+    })
+    def get(self, request, code, *args, **kwargs):
+        country = get_object_or_404(Country, code=code)
+        serializer = CountrySerializer(country)
+
+        return Response(data=serializer.data, status=status.HTTP_200_OK) 

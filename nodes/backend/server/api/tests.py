@@ -18,16 +18,18 @@ class UsersTests(APITestCase):
         self.unemplUrl = reverse('api:unempl')
         self.populUrl = reverse('api:popul')
         self.internetUrl = reverse('api:inter')
-        country = Country.objects.create(name='Brazil', code='BRA')
+        self.countryListUrl = reverse('api:country_list')
+        self.countryDetailUrl = reverse('api:country_detail', kwargs={'code':'BRA'})
+        self.country = Country.objects.create(name='Brazil', code='BRA')
         self.testUnemplObjects = []
         for year, value in [(2014, 10.234), (2015, 9.024), (2016, 6.789)]:
             self.testUnemplObjects.append(
-                Unemployment.objects.create(year=year, value=value, country=country))
+                Unemployment.objects.create(year=year, value=value, country=self.country))
         
         self.testPopulationObjects = []
         for year, value in [(2014, 12331), (2015, 32131), (2016, 42141)]:
             self.testPopulationObjects.append(
-                Population.objects.create(year=year, value=value, country=country))
+                Population.objects.create(year=year, value=value, country=self.country))
         
         self.testInternetObjects = []
         for year, cellularsubscription, internetuserspercent, internetusersnumber, broadbandsubscription \
@@ -39,8 +41,11 @@ class UsersTests(APITestCase):
                                         internetusersnumber=internetusersnumber,
                                           internetuserspercent=internetuserspercent,
                                           broadbandsubscription=broadbandsubscription,
-                                          country=country)
+                                          country=self.country)
             )
+        
+
+
         
     # UNEMPLOYMENT TEST
     def test_unemployment_valid_resp_code(self):
@@ -105,4 +110,38 @@ class UsersTests(APITestCase):
         resp = self.client.get(self.internetUrl + '?year_end=2014&year_start=2016') 
         self.assertEqual(resp.status_code, status.HTTP_400_BAD_REQUEST)
     
+
+    # COUNTRY TEST
+    def test_country_detail_valid_status_code(self):
+        resp = self.client.get(self.countryDetailUrl)
+        
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+    
+    def test_country_detail_valid_resp_body(self):
+        resp = self.client.get(self.countryDetailUrl)
+        resp_body = resp.json()
+
+        self.assertEqual(resp_body['code'], self.country.code)
+        self.assertEqual(resp_body['name'], self.country.name)
+
+    def test_country_deatil_not_found(self):
+        resp = self.client.get(reverse('api:country_detail', kwargs={'code':'XYZ'}))
+
+        self.assertEqual(resp.status_code, status.HTTP_404_NOT_FOUND)
+    
+
+    def test_country_list_status_code(self):
+        resp = self.client.get(self.countryListUrl)
+
+        self.assertEqual(resp.status_code, status.HTTP_200_OK)
+
+    def test_country_list_resp_body(self):
+        resp = self.client.get(self.countryListUrl)
+        resp_body = resp.json()
+
+        countries = Country.objects.all()
+        for country_db, country_resp in zip(countries, resp_body):
+            self.assertEqual(country_db.code, country_resp['code'])
+            self.assertEqual(country_db.name, country_resp['name'])
+
 

@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Unemployment, Population, Internet
+from .models import Unemployment, Population, Internet, Country
 from rest_framework.validators import ValidationError
 
 
@@ -33,3 +33,11 @@ class InternetSerializer(serializers.ModelSerializer):
         fields = ['year', 'cellularsubscription',
                    'internetuserspercent', 'internetusersnumber',
                     'broadbandsubscription' ]
+
+class CountrySerializer(serializers.ModelSerializer):
+    name = serializers.CharField(max_length=120)
+    code = serializers.CharField(max_length=10)
+
+    class Meta:
+        model = Country
+        fields = ['code', 'name']
