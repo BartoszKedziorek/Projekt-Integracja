@@ -29,7 +29,7 @@ class InternetSerializer(serializers.ModelSerializer):
     broadbandsubscription = serializers.FloatField()
 
     class Meta:
-        model = Unemployment
+        model = Internet
         fields = ['year', 'cellularsubscription',
                    'internetuserspercent', 'internetusersnumber',
                     'broadbandsubscription' ]
