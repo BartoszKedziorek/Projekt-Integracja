@@ -4,8 +4,7 @@ from rest_framework import status
 from rest_framework.authtoken.models import Token
 from django.urls import path, include, reverse
 from django.contrib.auth.models import User
-from .models import Country, Unemployment, Population, Internet 
-
+from .models import Country, Unemployment, Population, Internet
 
 # Create your tests here.
 
@@ -43,9 +42,24 @@ class UsersTests(APITestCase):
                                           broadbandsubscription=broadbandsubscription,
                                           country=self.country)
             )
+
+        password = 'pas123'
+        user_data = {
+            "username": "test",
+            "first_name": "John",
+            "last_name": "Test",
+            "email": "johntest@wp.pl",
+            "password": password,
+           
+        }
+        user = User.objects.create(**user_data)
+        user.set_password(password)
+        user.save()
+        Token.objects.create(user=user)
+
+        token = Token.objects.get(user__username='test')
+        self.client.credentials(HTTP_AUTHORIZATION='Token ' + token.key)
         
-
-
         
     # UNEMPLOYMENT TEST
     def test_unemployment_valid_resp_code(self):

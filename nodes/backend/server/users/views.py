@@ -78,6 +78,7 @@ class UserRegisterAPIView(APIView):
 
 class UserLogoutAPIView(APIView):
     serializer_class = None
+    authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]
 
     @extend_schema(responses={

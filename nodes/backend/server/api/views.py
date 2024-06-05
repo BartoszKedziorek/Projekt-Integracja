@@ -10,6 +10,8 @@ from django.db.models import Model
 from rest_framework import generics
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 
 class GetValuesFromRangeMixin(APIView):
     model = Model
@@ -42,6 +44,8 @@ class GetValuesFromRangeMixin(APIView):
 class UnemploymentAPIView(GetValuesFromRangeMixin):
     model = Unemployment
     serializer_class = UnemploymentSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
             parameters=[
@@ -76,7 +80,8 @@ class UnemploymentAPIView(GetValuesFromRangeMixin):
 class PopulationAPIView(GetValuesFromRangeMixin):
     model = Population
     serializer_class = PopulationSerializer
-
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
             parameters=[
@@ -112,6 +117,8 @@ class PopulationAPIView(GetValuesFromRangeMixin):
 class InternetAPIView(GetValuesFromRangeMixin):
     model = Internet
     serializer_class = InternetSerializer
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
     @extend_schema(
             parameters=[
@@ -142,9 +149,13 @@ class InternetAPIView(GetValuesFromRangeMixin):
 class ListCountryApiView(generics.ListAPIView):
     queryset = Country.objects.all()
     serializer_class = CountrySerializer
-
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
 class DetailCountryApiView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+    
     @extend_schema(responses={
         200: CountrySerializer,
         400: inline_serializer(
