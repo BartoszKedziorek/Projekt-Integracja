@@ -19,13 +19,13 @@ def getDataset(host: str, src: str, dest_dir: str) -> bool:
 class DatasetsClient():
 
     def fetch_data_into_db(self):
-        if not load_dotenv():
-            print("Błąd podczas wczytywania zmiennych środowiskowych")
-            exit(-1)
+        # if not load_dotenv():
+        #     print("Błąd podczas wczytywania zmiennych środowiskowych")
+        #     exit(-1)
         
         source_entries = None
         try:
-            source_entries = json.loads(open("source.json", "r").read())
+            source_entries = json.loads(open(os.environ.get('DATASETS_SOURCE_FILE'), "r").read())
         except:
             raise Exception("Wystąpił problem podczas pobierania danych o plikach wejściowych")
         
@@ -37,4 +37,8 @@ class DatasetsClient():
             with open(dest_dir, 'r') as input_file:
                 loader_class = get_loader_for_file(fileName) 
                 loader = loader_class(engine, get_model_for_file(fileName))
-                loader.load(input_file)    
+                loader.load(input_file)
+
+if __name__ == '__main__':
+    dsClient = DatasetsClient()
+    dsClient.fetch_data_into_db() 
