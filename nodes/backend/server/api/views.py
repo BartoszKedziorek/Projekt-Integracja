@@ -1,14 +1,14 @@
 from django.shortcuts import render
 from rest_framework.views import APIView
-from .serializers import PopulationSerializer, UnemploymentSerializer
+from .serializers import PopulationSerializer, UnemploymentSerializer, InternetSerializer
 from rest_framework.response import Response
 from rest_framework import status
-from .models import Unemployment, Population
+from .models import Unemployment, Population, Internet
 from drf_spectacular.utils import extend_schema, OpenApiParameter, inline_serializer
 from rest_framework import serializers
 from django.db.models import Model
 
-class MGenericAPIView(APIView):
+class GetValuesFromRangeMixin(APIView):
     model = Model
     serializer_class = serializers.Serializer
 
@@ -36,7 +36,7 @@ class MGenericAPIView(APIView):
         return Response(response, status=status.HTTP_200_OK)   
 
 
-class UnemploymentAPIView(MGenericAPIView):
+class UnemploymentAPIView(GetValuesFromRangeMixin):
     model = Unemployment
     serializer_class = UnemploymentSerializer
 
@@ -70,7 +70,7 @@ class UnemploymentAPIView(MGenericAPIView):
     def get(self, request, *args, **kwargs):
         return super().get(request, *args, **kwargs)
 
-class PopulationAPIView(MGenericAPIView):
+class PopulationAPIView(GetValuesFromRangeMixin):
     model = Population
     serializer_class = PopulationSerializer
 
@@ -106,4 +106,32 @@ class PopulationAPIView(MGenericAPIView):
 
 
 
+class InternetAPIView(GetValuesFromRangeMixin):
+    model = Internet
+    serializer_class = InternetSerializer
+
+    @extend_schema(
+            parameters=[
+                OpenApiParameter(name="year_start", type=int, required=True),
+                OpenApiParameter(name="year_end", type=int, required=True),
+                OpenApiParameter(name="code", type=str, description="Country code", required=True)
+            ],
+            responses={
+                200: inline_serializer(
+                    name=model.__name__+"ResponseSuccess",
+                    fields={
+                        "code": serializers.CharField(),
+                        "values": InternetSerializer(many=True)
+                    }
+                ),
+                400: inline_serializer(
+                    name=model.__name__+"ResponseFailure",
+                    fields={
+                        "message": serializers.CharField()
+                    }
+                )
+            }
+    )
+    def get(self, request, *args, **kwargs):
+        return super().get(request, *args, **kwargs)
 

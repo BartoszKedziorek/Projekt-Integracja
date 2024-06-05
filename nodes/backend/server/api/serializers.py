@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Unemployment, Population
+from .models import Unemployment, Population, Internet
 from rest_framework.validators import ValidationError
 
 
@@ -20,3 +20,16 @@ class UnemploymentSerializer(serializers.ModelSerializer):
         model = Unemployment
         fields = ['year', 'value']
     
+
+class InternetSerializer(serializers.ModelSerializer):
+    year = serializers.IntegerField()
+    cellularsubscription = serializers.FloatField()
+    internetuserspercent = serializers.FloatField()
+    internetusersnumber = serializers.IntegerField()
+    broadbandsubscription = serializers.FloatField()
+
+    class Meta:
+        model = Unemployment
+        fields = ['year', 'cellularsubscription',
+                   'internetuserspercent', 'internetusersnumber',
+                    'broadbandsubscription' ]
