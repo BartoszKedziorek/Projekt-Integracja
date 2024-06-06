@@ -4,6 +4,7 @@ from rest_framework.exceptions import ValidationError
 from rest_framework import status
 from rest_framework.authtoken.models import Token
 from drf_spectacular.utils import extend_schema_serializer, OpenApiExample
+from django.contrib.auth.models import Group
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -56,3 +57,13 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         Token.objects.create(user=user)
         return user
 
+
+class RoleSerializer(serializers.ModelSerializer):
+    name = serializers.CharField()
+    
+    class Meta:
+        model = Group
+        fields = ['name']
+    
+
+    

@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from rest_framework.exceptions import ValidationError
 from rest_framework.authtoken.models import Token
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User, Group
 from django.contrib.auth import authenticate
 
 # Create your views here.
@@ -13,7 +13,7 @@ from drf_spectacular.utils import extend_schema, OpenApiParameter, inline_serial
 
 # serializers
 from .serializers import UserRegisterSerializer
-from .serializers import UserLoginSerializer
+from .serializers import UserLoginSerializer, RoleSerializer
 from rest_framework import serializers
 from rest_framework.authentication import TokenAuthentication
 
@@ -93,3 +93,21 @@ class UserLogoutAPIView(APIView):
         token.delete()
         return Response({'success': True, 'detail':'Logget out!' },
                         status=status.HTTP_200_OK)
+
+
+@extend_schema(
+    responses=inline_serializer(name="RolesResponse",
+                                fields={
+                                    "roles": RoleSerializer(many=True)
+                                })
+)
+class RoleAPIView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        roles = [{"name": role.name} for role in request.user.groups.all()]
+        return Response(data={
+            "roles": roles
+        },
+        status=status.HTTP_200_OK)
