@@ -1,115 +1,165 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 import CanvasJSReact from '@canvasjs/react-charts';
 
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
-const Graph3 = () => {
+const Rankings = () => {
     const [filter, setFilter] = useState('top');
     const [yearRange, setYearRange] = useState(10);
+    const [countryData, setCountryData] = useState([]);
+    const [unemploymentData, setUnemploymentData] = useState([]);
+    const [populationData, setPopulationData] = useState([]);
+    const [internetData, setInternetData] = useState([]);
 
-    const allData = {
-        women: [
-            { label: "Health & Clinical Science", y: 85 },
-            { label: "Education", y: 79 },
-            { label: "Psychology", y: 77 },
-            { label: "Language & Literature", y: 68 },
-            { label: "Communication Tech", y: 63 },
-            { label: "Art", y: 61 },
-            { label: "Biomedical Science", y: 59 },
-            { label: "Social Science & History", y: 49 },
-            { label: "Business", y: 49 },
-            { label: "Computer & Info Science", y: 18 }
-        ],
-        men: [
-            { label: "Health & Clinical Science", y: 15 },
-            { label: "Education", y: 21 },
-            { label: "Psychology", y: 23 },
-            { label: "Language & Literature", y: 32 },
-            { label: "Communication Tech", y: 37 },
-            { label: "Art", y: 39 },
-            { label: "Biomedical Science", y: 41 },
-            { label: "Social Science & History", y: 51 },
-            { label: "Business", y: 51 },
-            { label: "Computer & Info Science", y: 82 }
-        ]
-    };
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                const response = await axios.get('http://127.0.0.1:8001/api/country');
+                setCountryData(response.data);
+            } catch (error) {
+                console.error('Error fetching country data', error);
+            }
+        };
+
+        fetchData();
+    }, []);
+
+    useEffect(() => {
+        const fetchUnemploymentData = async () => {
+            try {
+                const promises = countryData.map(country => axios.get(`http://127.0.0.1:8001/api/unemployment?code=${country.code}&year_end=${yearRange}&year_start=${yearRange - 9}`));
+                const responses = await Promise.all(promises);
+                const data = responses.map(response => response.data.values);
+                setUnemploymentData(data);
+            } catch (error) {
+                console.error('Error fetching unemployment data', error);
+            }
+        };
+
+        if (countryData.length > 0) {
+            fetchUnemploymentData();
+        }
+    }, [countryData, yearRange]);
+
+    useEffect(() => {
+        const fetchPopulationData = async () => {
+            try {
+                const promises = countryData.map(country => axios.get(`http://127.0.0.1:8001/api/population?code=${country.code}&year_end=${yearRange}&year_start=${yearRange - 9}`));
+                const responses = await Promise.all(promises);
+                const data = responses.map(response => response.data.values);
+                setPopulationData(data);
+            } catch (error) {
+                console.error('Error fetching population data', error);
+            }
+        };
+
+        if (countryData.length > 0) {
+            fetchPopulationData();
+        }
+    }, [countryData, yearRange]);
+
+    useEffect(() => {
+        const fetchInternetData = async () => {
+            try {
+                const promises = countryData.map(country => axios.get(`http://127.0.0.1:8001/api/internet?code=${country.code}&year_end=${yearRange}&year_start=${yearRange - 9}`));
+                const responses = await Promise.all(promises);
+                const data = responses.map(response => response.data.values);
+                setInternetData(data);
+            } catch (error) {
+                console.error('Error fetching internet data', error);
+            }
+        };
+
+        if (countryData.length > 0) {
+            fetchInternetData();
+        }
+    }, [countryData, yearRange]);
 
     const getFilteredData = (data) => {
         let filteredData = [...data];
 
         if (filter === 'top') {
-            filteredData.sort((a, b) => b.y - a.y);
+            filteredData.sort((a, b) => b.value - a.value);
         } else {
-            filteredData.sort((a, b) => a.y - b.y);
+            filteredData.sort((a, b) => a.value - b.value);
         }
 
-        return filteredData.slice(0, yearRange);
+        return filteredData.slice(0, 10); // only top 10 for simplicity
     };
 
-    const options = {
-        title: {
-            text: "Popular Majors Opted by Women & Men"
-        },
-        toolTip: {
-            shared: true
-        },
-        legend: {
-            verticalAlign: "top"
-        },
-        axisY: {
-            suffix: "%"
-        },
-        data: [
-            {
-                type: "stackedBar100",
-                color: "#9bbb59",
-                name: "Women",
-                showInLegend: true,
-                indexLabel: "{y}",
-                indexLabelFontColor: "white",
-                yValueFormatString: "#,###'%'",
-                dataPoints: getFilteredData(allData.women)
+    const renderChart = (dataPoints, title) => {
+        const options = {
+            title: {
+                text: title
             },
-            {
-                type: "stackedBar100",
-                color: "#7f7f7f",
-                name: "Men",
-                showInLegend: true,
-                indexLabel: "{y}%",
-                indexLabelFontColor: "white",
-                yValueFormatString: "#,###'%'",
-                dataPoints: getFilteredData(allData.men)
-            }
-        ]
+            toolTip: {
+                shared: true
+            },
+            legend: {
+                verticalAlign: "top"
+            },
+            axisY: {
+                suffix: "%"
+            },
+            data: [
+                {
+                    type: "stackedBar100",
+                    color: "#9bbb59",
+                    name: "Data 1",
+                    showInLegend: true,
+                    indexLabel: "{y}",
+                    indexLabelFontColor: "red",
+                    yValueFormatString: "#,###'%'",
+                    dataPoints: getFilteredData(dataPoints)
+                }
+            ]
+        };
+
+        return <CanvasJSChart options={options} />;
+    };
+
+    const handleChangeFilter = (e) => {
+        setFilter(e.target.value);
+    };
+
+    const handleChangeYearRange = (e) => {
+        setYearRange(parseInt(e.target.value, 10));
     };
 
     return (
         <div>
             <div className="filters">
                 <label>
-                    Filtr:
-                    <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-                        <option value="top">MAX</option>
-                        <option value="bottom">MIN</option>
+                    Filter:
+                    <select value={filter} onChange={handleChangeFilter}>
+                        <option value="top">Top</option>
+                        <option value="bottom">Bottom</option>
                     </select>
                 </label>
                 <label>
-                    Przedział lat:
-                    <select value={yearRange} onChange={(e) => setYearRange(parseInt(e.target.value, 10))}>
+                    Year Range:
+                    <select value={yearRange} onChange={handleChangeYearRange}>
+                        <option value={5}>5</option>
                         <option value={10}>10</option>
                         <option value={15}>15</option>
                         <option value={20}>20</option>
-                        <option value={25}>25</option>
                     </select>
                 </label>
             </div>
             <div className='container'>
-                <CanvasJSChart options={options} />
-                <CanvasJSChart options={options} />
-                <CanvasJSChart options={options} />
+                <div>
+                    {renderChart(unemploymentData, 'Unemployment Rate')}
+                </div>
+                <div>
+                    {renderChart(populationData, 'Population')}
+                </div>
+                <div>
+                    {renderChart(internetData, 'Internet Access')}
+                </div>
             </div>
         </div>
     );
 };
 
-export default Graph3;
+export default Rankings;
