@@ -3,7 +3,6 @@ import { BrowserRouter as Router, Route, Routes, Link, Navigate } from 'react-ro
 import Login from './components/Login';
 import Register from './components/Register';
 import GraphComparison from './components/GraphComparison';
-import Logout from './components/Logout';
 import './App.css';
 
 const App = () => {
@@ -36,7 +35,7 @@ const App = () => {
                 <h1>Projekt zaliczeniowy z przedmiotu: Integracja systemów</h1>
                 <h2>Backend: Bartosz Kędziorek</h2>
                 <h2>Frontend: Eryk Kołodziejczyk</h2>
-                <h1>Temat: xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx </h1>
+                <h1>Temat: Porównanie poziomu dostępu do internetu - łącz szerokopasmowych w stosunku do liczby mieszkańców i poziomu bezrobocia w państwach świata </h1>
                 <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />

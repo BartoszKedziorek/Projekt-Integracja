@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import CanvasJSReact from '@canvasjs/react-charts';
+import axios from 'axios';
 
 const CanvasJSChart = CanvasJSReact.CanvasJSChart;
 
@@ -8,69 +9,92 @@ class Graph4 extends Component {
         super(props);
         this.state = {
             internetUsersDataPoints: [],
-            percentDataPoints: []
+            internetUsersPercentDataPoints: []
         };
     }
 
     componentDidMount() {
-        this.generateExampleData();
+        this.fetchInternetUsersData();
     }
 
     componentDidUpdate(prevProps) {
         if (prevProps.selectedCountry !== this.props.selectedCountry || prevProps.yearRange !== this.props.yearRange) {
-            this.generateExampleData();
+            this.fetchInternetUsersData();
         }
     }
 
-    generateExampleData = () => {
-        // Generate example data for internet users and percentage
-        const { yearRange } = this.props;
-        const internetUsersDataPoints = [];
-        const percentDataPoints = [];
-        const currentYear = new Date().getFullYear();
-        const startYear = currentYear - yearRange + 1; // Początkowy rok na osi X
-        const endYear = currentYear; // Końcowy rok na osi X
-        for (let year = startYear; year <= endYear; year++) {
-            internetUsersDataPoints.push({ x: new Date(year, 0, 1), y: Math.floor(Math.random() * 1000) }); // Random number of internet users
-            percentDataPoints.push({ x: new Date(year, 0, 1), y: Math.random() * 100 }); // Random percentage
+    fetchInternetUsersData = async () => {
+        const { selectedCountry, yearRange } = this.props;
+        if (!selectedCountry) return;
+
+        const currentYear = 2020;
+        const yearStart = currentYear - yearRange + 1;
+        const yearEnd = currentYear;
+        
+        try {
+            const response = await axios.get(`http://127.0.0.1:8001/api/internet?code=${selectedCountry}&year_end=${yearEnd}&year_start=${yearStart}`, {
+                params: {
+                    code: selectedCountry,
+                    year_start: yearStart,
+                    year_end: yearEnd
+                }
+            });
+            const data = response.data;
+            const internetUsersDataPoints = data.values.map(item => ({
+                x: new Date(item.year, 0, 1),
+                y: item.internetusersnumber
+            }));
+            const internetUsersPercentDataPoints = data.values.map(item => ({
+                x: new Date(item.year, 0, 1),
+                y: item.internetuserspercent
+            }));
+            this.setState({ internetUsersDataPoints, internetUsersPercentDataPoints });
+        } catch (error) {
+            console.error('Error fetching internet users data', error);
         }
-        this.setState({ internetUsersDataPoints, percentDataPoints });
+    };
+
+    calculateYearRange = (yearRange) => {
+        const currentYear = 2020;
+        const year_end = currentYear;
+        const year_start = currentYear - yearRange + 1;
+        return { year_start, year_end };
     };
 
     render() {
-        const { internetUsersDataPoints, percentDataPoints } = this.state;
+        const { internetUsersDataPoints, internetUsersPercentDataPoints } = this.state;
 
         const options1 = {
             title: {
                 text: "Internet Users"
             },
             axisX: {
-                title: "Date Range",
-                valueFormatString: "YYYY" // Formatowanie wartości osi X jako pełnych lat
+                title: "Year",
+                valueFormatString: "YYYY"
             },
             axisY: {
                 title: "Number of Internet Users"
             },
             data: [{
-                type: "column", // zmieniony typ wykresu na słupkowy
+                type: "column",
                 dataPoints: internetUsersDataPoints
             }]
         };
 
         const options2 = {
             title: {
-                text: "Percentage"
+                text: "Percentage of Internet Users"
             },
             axisX: {
-                title: "Date Range",
-                valueFormatString: "YYYY" // Formatowanie wartości osi X jako pełnych lat
+                title: "Year",
+                valueFormatString: "YYYY"
             },
             axisY: {
-                title: "Percent (%)"
+                title: "Percentage (%)"
             },
             data: [{
-                type: "column", // zmieniony typ wykresu na słupkowy
-                dataPoints: percentDataPoints
+                type: "column",
+                dataPoints: internetUsersPercentDataPoints
             }]
         };
 
