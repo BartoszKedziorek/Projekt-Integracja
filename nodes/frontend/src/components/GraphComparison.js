@@ -17,12 +17,23 @@ class GraphComparison extends Component {
     }
 
     componentDidMount() {
-        this.fetchCountries();
+        if (this.state.isLoggedIn) {
+            this.fetchCountries();
+        } else {
+            // Handle the case where the user is not logged in
+            console.error('User is not logged in.');
+        }
     }
 
     fetchCountries = async () => {
         try {
-            const response = await axios.get('http://127.0.0.1:8001/api/country');
+            const token = localStorage.getItem('token');
+            const response = await axios.get('http://127.0.0.1:8001/api/country', {
+                headers: {
+                    'Authorization': `Token ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
             const countries = response.data;
             if (countries.length > 0) {
                 this.setState({ countries, selectedCountry: countries[1].code });
@@ -48,12 +59,18 @@ class GraphComparison extends Component {
     };
 
     render() {
-        const { countries, selectedCountry, yearRange } = this.state;
+        const { countries, selectedCountry, yearRange, isLoggedIn } = this.state;
+
+        if (!isLoggedIn) {
+            return (
+                <div>
+                    <p>Please log in to view the graphs.</p>
+                </div>
+            );
+        }
 
         return (
             <div>
-                <div className="top-nav">
-                </div>
                 <div className="filters">
                     <label>
                         Country:
@@ -78,7 +95,8 @@ class GraphComparison extends Component {
                     <div className="chart"><Graph1 selectedCountry={selectedCountry} yearRange={yearRange} /></div>
                     <div className="chart"><Graph4 selectedCountry={selectedCountry} yearRange={yearRange} /></div>
                 </div>
-                <div className='chart-container'>
+                <div className="chart-container">
+                    {/* Uncomment this to use Graph3 */}
                     {/* <div className="chart"><Graph3 selectedCountry={selectedCountry} yearRange={yearRange} /></div> */}
                 </div>
             </div>

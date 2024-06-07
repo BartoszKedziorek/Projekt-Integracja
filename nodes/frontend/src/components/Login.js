@@ -17,10 +17,18 @@ const Login = () => {
             return;
         }
         try {
-            const response = await axios.post('http://127.0.0.1:8001/login', {
-                username: username,
-                password: password
-            });
+            const response = await axios.post(
+                'http://127.0.0.1:8001/login',
+                {
+                    username: username,
+                    password: password
+                },
+                {
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            );
             // Save the token and handle further authenticated requests
             localStorage.setItem('token', response.data.token);
             navigate('/graph-comparison'); // Redirect to GraphComparison page after successful login
