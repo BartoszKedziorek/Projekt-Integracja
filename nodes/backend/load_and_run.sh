@@ -1,3 +1,5 @@
+env >> /etc/environment
+service cron restart
 python ./DatasetsPythonClient/load_countries.py;
 python ./DatasetsPythonClient/DatasetsClient.py;
 python manage.py migrate users

@@ -16,16 +16,29 @@ ENV PYTHONUNBUFFERED 1
 # instalacja zależności  
 RUN pip install --upgrade pip && \
     apt update && \
-    apt-get -y install curl
+    apt-get -y install curl && \
+    apt-get -y install cron
 
 # skopiowanie plików projektu 
 COPY /server/. $APPDIR
 COPY requirements.txt requirements.txt
 COPY DatasetsPythonClient DatasetsPythonClient
+ADD cronjob /etc/cron.d/cronjob
+
+# Give execution rights on the cron job
+RUN chmod 0644 /etc/cron.d/cronjob
+    
+
+# Apply cron job
+RUN crontab /etc/cron.d/cronjob
+
+
+RUN python -m venv /opt/venv
+ENV PATH="/opt/venv/bin:$PATH"
 
 # instalacja wszystkich zależności  
 RUN pip install -r requirements.txt
-
+    
 # oznaczenie wystawianego portu  
 EXPOSE 8000  
 
