@@ -32,13 +32,19 @@ class Graph4 extends Component {
         const yearEnd = currentYear;
         
         try {
-            const response = await axios.get(`http://127.0.0.1:8001/api/internet?code=${selectedCountry}&year_end=${yearEnd}&year_start=${yearStart}`, {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`http://127.0.0.1:8001/api/internet`, {
+                headers: {
+                    'Authorization': `Token ${token}`,
+                    'Content-Type': 'application/json'
+                },
                 params: {
                     code: selectedCountry,
                     year_start: yearStart,
                     year_end: yearEnd
                 }
             });
+
             const data = response.data;
             const internetUsersDataPoints = data.values.map(item => ({
                 x: new Date(item.year, 0, 1),
@@ -52,13 +58,6 @@ class Graph4 extends Component {
         } catch (error) {
             console.error('Error fetching internet users data', error);
         }
-    };
-
-    calculateYearRange = (yearRange) => {
-        const currentYear = 2020;
-        const year_end = currentYear;
-        const year_start = currentYear - yearRange + 1;
-        return { year_start, year_end };
     };
 
     render() {

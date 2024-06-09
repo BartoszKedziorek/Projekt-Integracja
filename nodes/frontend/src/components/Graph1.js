@@ -29,32 +29,37 @@ class Graph1 extends Component {
     };
 
     fetchUnemploymentData = async () => {
-    const { selectedCountry, yearRange } = this.props;
-    if (!selectedCountry) return;
+        const { selectedCountry, yearRange } = this.props;
+        if (!selectedCountry) return;
 
-    const currentYear = 2022;
-    const yearStart = currentYear - yearRange + 1;
-    const yearEnd = currentYear;
+        const currentYear = 2023;
+        const yearStart = currentYear - yearRange + 1;
+        const yearEnd = currentYear;
 
-    try {
-        const response = await axios.get(`http://127.0.0.1:8001/api/unemployment?code=${selectedCountry}&year_end=${yearEnd}&year_start=${yearStart}`, {
-            params: {
-                code: selectedCountry,
-                year_start: yearStart,
-                year_end: yearEnd
-            }
-        });
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`http://127.0.0.1:8001/api/unemployment`, {
+                headers: {
+                    'Authorization': `Token ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                params: {
+                    code: selectedCountry,
+                    year_start: yearStart,
+                    year_end: yearEnd
+                }
+            });
 
-        const unemploymentData = response.data.values.map(data => ({
-            x: new Date(data.year, 0),
-            y: parseFloat(data.value)
-        }));
+            const unemploymentData = response.data.values.map(data => ({
+                x: new Date(data.year, 0),
+                y: parseFloat(data.value)
+            }));
 
-        this.setState({ unemploymentDataPoints: unemploymentData });
-    } catch (error) {
-        console.error('Error fetching unemployment data', error);
-    }
-};
+            this.setState({ unemploymentDataPoints: unemploymentData });
+        } catch (error) {
+            console.error('Error fetching unemployment data', error);
+        }
+    };
 
     fetchPopulationData = async () => {
         const { selectedCountry, yearRange } = this.props;
@@ -65,7 +70,12 @@ class Graph1 extends Component {
         const yearEnd = currentYear;
 
         try {
-            const response = await axios.get(`http://127.0.0.1:8001/api/population?code=${selectedCountry}&year_end=${yearEnd}&year_start=${yearStart}`, {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`http://127.0.0.1:8001/api/population`, {
+                headers: {
+                    'Authorization': `Token ${token}`,
+                    'Content-Type': 'application/json'
+                },
                 params: {
                     code: selectedCountry,
                     year_start: yearStart,
