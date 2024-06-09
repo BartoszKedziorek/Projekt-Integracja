@@ -219,6 +219,10 @@ class ExtremeMixin(APIView):
 
 class ExtremeUnemploymentCountryApiView(ExtremeMixin):
     model = Unemployment
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
 class ExtremePopulationCountryApiView(ExtremeMixin):
     model = Population
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
