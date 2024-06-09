@@ -176,6 +176,7 @@ class DetailCountryApiView(APIView):
 
 class ExtremeMixin(APIView):
     model = Model
+    value_field = ''
 
     def get(self, request):
         required_params = ['years', 'amount', 'extreme_type']
@@ -191,7 +192,7 @@ class ExtremeMixin(APIView):
         query_year = current_year - int(request.GET['years'])
 
         avg_values = self.model.objects.filter(year__gte=query_year) \
-            .values('country').annotate(avg=Avg('value'))
+            .values('country').annotate(avg=Avg(self.value_field))
             #.order_by('-avg')[:request.GET['amount']]
         
         avg_values = [{
@@ -219,10 +220,19 @@ class ExtremeMixin(APIView):
 
 class ExtremeUnemploymentCountryApiView(ExtremeMixin):
     model = Unemployment
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    value_field = 'value'
+    #authentication_classes = [TokenAuthentication]
+    #permission_classes = [IsAuthenticated]
 
 class ExtremePopulationCountryApiView(ExtremeMixin):
     model = Population
-    authentication_classes = [TokenAuthentication]
-    permission_classes = [IsAuthenticated]
+    value_field = 'value'
+    #authentication_classes = [TokenAuthentication]
+    #permission_classes = [IsAuthenticated]
+
+
+class ExtremeInternetCountryApiView(ExtremeMixin):
+    model = Internet
+    value_field = 'internetuserspercent'
+    #authentication_classes = [TokenAuthentication]
+    #permission_classes = [IsAuthenticated]
