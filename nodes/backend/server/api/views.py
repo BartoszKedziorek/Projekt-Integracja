@@ -12,6 +12,8 @@ from django.shortcuts import get_object_or_404
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
+import datetime
+from django.db.models import Avg, Subquery
 
 class GetValuesFromRangeMixin(APIView):
     model = Model
@@ -169,4 +171,54 @@ class DetailCountryApiView(APIView):
         country = get_object_or_404(Country, code=code)
         serializer = CountrySerializer(country)
 
-        return Response(data=serializer.data, status=status.HTTP_200_OK) 
+        return Response(data=serializer.data, status=status.HTTP_200_OK)
+
+
+class ExtremeMixin(APIView):
+    model = Model
+
+    def get(self, request):
+        required_params = ['years', 'amount', 'extreme_type']
+        # check if quey container required parameters
+        for param in required_params:
+            if param not in request.query_params.keys():
+                return Response({
+                    "message": "query parameter: {} is missing".format(param) 
+                },
+                status=status.HTTP_400_BAD_REQUEST) 
+            
+        current_year = datetime.datetime.today().year
+        query_year = current_year - int(request.GET['years'])
+
+        avg_values = self.model.objects.filter(year__gte=query_year) \
+            .values('country').annotate(avg=Avg('value'))
+            #.order_by('-avg')[:request.GET['amount']]
+        
+        avg_values = [{
+            'id': entry['country'],
+            'avg': float(entry['avg']) if entry['avg'] is not None else None 
+        }
+        for entry in avg_values
+        ]
+
+        avg_values = list(filter(lambda x: x['avg'] is not None, avg_values))
+        avg_values.sort(key=lambda x: x['avg'], reverse=True if request.GET['extreme_type'] == 'max' else False)
+        avg_values = avg_values[:int(request.GET['amount'])]
+
+
+        # Pobranie identyfikatorów krajów z listy średnich wartości
+        highest_avg_countries = [{
+            'code':Country.objects.get(id=entry['id']).code,
+            'name':Country.objects.get(id=entry['id']).name,
+            'value':entry['avg']
+        }
+        for entry in avg_values
+        ]
+
+        return Response(data=highest_avg_countries, status=status.HTTP_200_OK)
+
+class ExtremeUnemploymentCountryApiView(ExtremeMixin):
+    model = Unemployment
+
+class ExtremePopulationCountryApiView(ExtremeMixin):
+    model = Population
