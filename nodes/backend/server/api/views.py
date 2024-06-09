@@ -177,7 +177,29 @@ class DetailCountryApiView(APIView):
 class ExtremeMixin(APIView):
     model = Model
     value_field = ''
-
+    @extend_schema(
+            parameters=[
+                OpenApiParameter(name="years", type=int, required=True, description='how many last years'),
+                OpenApiParameter(name="amount", type=int, required=True, description='number of results'),
+                OpenApiParameter(name="extreme", type=str, description="'min' or 'max'", required=True)
+            ],
+            responses={
+                200: inline_serializer(
+                    name="ExtremeResponseSuccess",
+                    fields={
+                        'code':serializers.CharField(),
+                        'name':serializers.CharField(),
+                        'value':serializers.DecimalField(max_digits=6, decimal_places=3)
+                    }, many=True
+                ),
+                400: inline_serializer(
+                    name="ExtremeResponseFailure",
+                    fields={
+                        "message": serializers.CharField()
+                    }
+                )
+            }
+    )
     def get(self, request):
         required_params = ['years', 'amount', 'extreme_type']
         # check if quey container required parameters
@@ -221,18 +243,18 @@ class ExtremeMixin(APIView):
 class ExtremeUnemploymentCountryApiView(ExtremeMixin):
     model = Unemployment
     value_field = 'value'
-    #authentication_classes = [TokenAuthentication]
-    #permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
 class ExtremePopulationCountryApiView(ExtremeMixin):
     model = Population
     value_field = 'value'
-    #authentication_classes = [TokenAuthentication]
-    #permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
 
 
 class ExtremeInternetCountryApiView(ExtremeMixin):
     model = Internet
     value_field = 'internetuserspercent'
-    #authentication_classes = [TokenAuthentication]
-    #permission_classes = [IsAuthenticated]
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
