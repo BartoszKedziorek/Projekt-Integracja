@@ -10,12 +10,18 @@ W katalogu "nodes/backend" należy utworzyć plik compose.env
 Plik ten zawiera zmienne środowiskowe niezbędne do uruchomienia
 serwera. Przykładowa zawartośc pliku compose.env:
 ```
-DEST_DIR=data
-DB_USERNAME=password
-DB_PASSWORD=password
-DB_HOSTNAME=127.0.0.1
-DB_NAME=db
-POSTGRES_PASSWORD=password
+DEST_DIR="sample_dir"
+DB_USERNAME='projekt_integracja'
+DB_PASSWORD='projekt_integracja'
+DB_HOSTNAME='db'
+DB_NAME='projekt_integracja'
+POSTGRES_PASSWORD='projekt_integracja'
+KAGGLE_USERNAME='kaggle_username'
+KAGGLE_KEY='kaggle_key'
+DATASETS_SOURCE_FILE='sample_dir'
+DJANGO_SUPERUSER_PASSWORD=admin
+DJANGO_SUPERUSER_EMAIL=admin@admin.com
+DJANGO_SUPERUSER_USERNAME=admin
 ```
 Po utworzeniu pliku **compose.env** i ustawieniu w nim zmiennych
 środowiskowych należy wykonać polecenie:
