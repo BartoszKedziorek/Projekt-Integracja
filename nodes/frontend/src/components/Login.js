@@ -31,8 +31,7 @@ const Login = () => {
             );
             localStorage.setItem('token', response.data.token);
             setTimeout(() => {
-                navigate(0);
-                navigate('/graph-comparison'); 
+                navigate(0); 
             }, 2000);
         } catch (error) {
             setError(error.response?.data.detail || 'Incorrect data');
