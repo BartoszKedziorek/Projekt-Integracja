@@ -1,9 +1,10 @@
+// GraphComparison.js
 import React, { Component } from 'react';
-import Graph1 from './Graph1'; // Adjust the import path as necessary
-import Graph3 from './Graph3';
+import Graph1 from './Graph1';
+import Graph3 from './Graph3'; 
 import Graph4 from './Graph4';
 import axios from 'axios';
-import './GraphComparison.css'; // Import the CSS file for styling
+import './GraphComparison.css';
 
 class GraphComparison extends Component {
     constructor(props) {
@@ -12,7 +13,9 @@ class GraphComparison extends Component {
             countries: [],
             selectedCountry: '',
             yearRange: 5,
-            isLoggedIn: !!localStorage.getItem('token') // Check if the user is logged in
+            isLoggedIn: !!localStorage.getItem('token'),
+            extreme_type: 'max', 
+            years: 5
         };
     }
 
@@ -20,7 +23,6 @@ class GraphComparison extends Component {
         if (this.state.isLoggedIn) {
             this.fetchCountries();
         } else {
-            // Handle the case where the user is not logged in
             console.error('User is not logged in.');
         }
     }
@@ -52,6 +54,14 @@ class GraphComparison extends Component {
     handleYearRangeChange = (e) => {
         this.setState({ yearRange: parseInt(e.target.value, 10) });
     };
+    
+    handleExtremeTypeChange = (e) => {
+        this.setState({ extreme_type: e.target.value });
+    };
+
+    handleYearChange = (e) => {
+        this.setState({ years: parseInt(e.target.value, 10) });
+    };
 
     handleLogout = () => {
         localStorage.removeItem('token');
@@ -59,7 +69,7 @@ class GraphComparison extends Component {
     };
 
     render() {
-        const { countries, selectedCountry, yearRange, isLoggedIn } = this.state;
+        const { countries, selectedCountry, yearRange, isLoggedIn, extreme_type, years } = this.state;
 
         if (!isLoggedIn) {
             return (
@@ -95,9 +105,27 @@ class GraphComparison extends Component {
                     <div className="chart"><Graph1 selectedCountry={selectedCountry} yearRange={yearRange} /></div>
                     <div className="chart"><Graph4 selectedCountry={selectedCountry} yearRange={yearRange} /></div>
                 </div>
+                <div className="filters">
+                    <label>
+                        Extreme Type:
+                        <select value={extreme_type} onChange={this.handleExtremeTypeChange}>
+                            <option value="max">Max</option>
+                            <option value="min">Min</option>
+                        </select>
+                    </label>
+                    <label>
+                        Years:
+                        <select value={years} onChange={this.handleYearChange}>
+                            <option value={1}>1 year</option>
+                            <option value={5}>5 years</option>
+                            <option value={10}>10 years</option>
+                            <option value={15}>15 years</option>
+                            <option value={20}>20 years</option>
+                        </select>
+                    </label>
+                </div>
                 <div className="chart-container">
-                    {/* Uncomment this to use Graph3 */}
-                    {/* <div className="chart"><Graph3 selectedCountry={selectedCountry} yearRange={yearRange} /></div> */}
+                    <div className="chart"><Graph3 extreme_type={extreme_type} years={years} /></div>
                 </div>
             </div>
         );

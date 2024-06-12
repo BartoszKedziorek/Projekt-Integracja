@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './Form.css'; // Import the CSS file
+import './Form.css';
 
 const Register = () => {
     const [formData, setFormData] = useState({
@@ -26,8 +26,8 @@ const Register = () => {
     const handleRegister = async (e) => {
         e.preventDefault();
         const { username, first_name, last_name, email, password, password2 } = formData;
-        setError(''); // Reset errors
-        setMessage(''); // Reset messages
+        setError('');
+        setMessage('');
         if (password !== password2) {
             setError("Passwords do not match");
             return;
@@ -41,10 +41,12 @@ const Register = () => {
                 password,
                 password2
             });
-            setMessage('Registered successfully');
+            if (response.data){
+                setMessage('Registered successfully');
             setTimeout(() => {
-                navigate('/login'); // Redirect to login page after successful registration
-            }, 2000); // Redirect to homepage after 2 seconds
+                navigate('/login'); 
+            }, 2000);
+            }
         } catch (error) {
             setError('Registration failed: ' + (error.response?.data.detail || 'Unknown error'));
         }

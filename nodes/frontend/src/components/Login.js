@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import './Form.css'; // Import the CSS file
+import './Form.css';
 
 const Login = () => {
     const [username, setUsername] = useState('');
@@ -11,7 +11,7 @@ const Login = () => {
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        setError(''); // Reset errors
+        setError('');
         if (!username || !password) {
             setError('Please fill in all fields.');
             return;
@@ -29,11 +29,13 @@ const Login = () => {
                     }
                 }
             );
-            // Save the token and handle further authenticated requests
             localStorage.setItem('token', response.data.token);
-            navigate('/graph-comparison'); // Redirect to GraphComparison page after successful login
+            setTimeout(() => {
+                navigate(0);
+                navigate('/graph-comparison'); 
+            }, 2000);
         } catch (error) {
-            setError(error.response?.data.detail || 'Unknown error');
+            setError(error.response?.data.detail || 'Incorrect data');
         }
     };
 

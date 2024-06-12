@@ -181,7 +181,7 @@ class ExtremeMixin(APIView):
             parameters=[
                 OpenApiParameter(name="years", type=int, required=True, description='how many last years'),
                 OpenApiParameter(name="amount", type=int, required=True, description='number of results'),
-                OpenApiParameter(name="extreme", type=str, description="'min' or 'max'", required=True)
+                OpenApiParameter(name="extreme_type", type=str, description="'min' or 'max'", required=True)
             ],
             responses={
                 200: inline_serializer(

@@ -9,12 +9,14 @@ class Graph1 extends Component {
         super(props);
         this.state = {
             unemploymentDataPoints: [],
-            populationDataPoints: []
+            populationDataPoints: [],
+            userRole: null
         };
     }
 
     componentDidMount() {
         this.fetchData();
+        this.fetchUserRole();
     }
 
     componentDidUpdate(prevProps) {
@@ -28,11 +30,28 @@ class Graph1 extends Component {
         await this.fetchPopulationData();
     };
 
+    fetchUserRole = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`http://127.0.0.1:8001/roles`, {
+                headers: {
+                    'Authorization': `Token ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const roles = response.data.roles.map(role => role.name);
+            this.setState({ userRole: roles.includes('export') ? 'export' : 'user' });
+        } catch (error) {
+            console.error('Error fetching user role', error);
+        }
+    };
+
     fetchUnemploymentData = async () => {
         const { selectedCountry, yearRange } = this.props;
         if (!selectedCountry) return;
 
-        const currentYear = 2023;
+        const currentYear = new Date().getFullYear();
         const yearStart = currentYear - yearRange + 1;
         const yearEnd = currentYear;
 
@@ -65,7 +84,7 @@ class Graph1 extends Component {
         const { selectedCountry, yearRange } = this.props;
         if (!selectedCountry) return;
 
-        const currentYear = 2022;
+        const currentYear = new Date().getFullYear();
         const yearStart = currentYear - yearRange + 1;
         const yearEnd = currentYear;
 
@@ -94,8 +113,18 @@ class Graph1 extends Component {
         }
     };
 
+    downloadDataAsJson = (dataPoints, fileName) => {
+        const blob = new Blob([JSON.stringify(dataPoints, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     render() {
-        const { unemploymentDataPoints, populationDataPoints } = this.state;
+        const { unemploymentDataPoints, populationDataPoints, userRole } = this.state;
 
         const options1 = {
             title: {
@@ -103,7 +132,7 @@ class Graph1 extends Component {
             },
             axisX: {
                 title: "Year",
-                valueFormatString: "YYYY" // Formatowanie wartości osi X jako pełnych lat
+                valueFormatString: "YYYY"
             },
             axisY: {
                 title: "Unemployment Rate (%)"
@@ -120,7 +149,7 @@ class Graph1 extends Component {
             },
             axisX: {
                 title: "Year",
-                valueFormatString: "YYYY" // Formatowanie wartości osi X jako pełnych lat
+                valueFormatString: "YYYY"
             },
             axisY: {
                 title: "Population"
@@ -132,9 +161,29 @@ class Graph1 extends Component {
         };
 
         return (
-            <div className='container'>
-                <CanvasJSChart options={options1} />
-                <CanvasJSChart options={options2} />
+            <div>
+                <div className='container'>
+                    {userRole === 'export' && (
+                        <button 
+                            onClick={() => this.downloadDataAsJson(unemploymentDataPoints, 'unemployment_data.json')}
+                            style={{ marginBottom: '20px' }}
+                        >
+                            Download Unemployment Data as JSON
+                        </button>
+                    )}
+                    <CanvasJSChart options={options1} />
+                </div>
+                <div className='container'>
+                    {userRole === 'export' && (
+                        <button 
+                            onClick={() => this.downloadDataAsJson(populationDataPoints, 'population_data.json')}
+                            style={{ marginBottom: '20px' }}
+                        >
+                            Download Population Data as JSON
+                        </button>
+                    )}
+                    <CanvasJSChart options={options2} />
+                </div>
             </div>
         );
     }

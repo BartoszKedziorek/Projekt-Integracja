@@ -1,6 +1,6 @@
 import {useEffect, useState} from "react";
 import axios from "axios";
-// Define the Login function.
+
 export const Home = () => {
      const [message, setMessage] = useState('');
      useEffect(() => {

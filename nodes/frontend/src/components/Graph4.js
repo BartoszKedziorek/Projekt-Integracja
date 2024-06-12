@@ -9,12 +9,14 @@ class Graph4 extends Component {
         super(props);
         this.state = {
             internetUsersDataPoints: [],
-            internetUsersPercentDataPoints: []
+            internetUsersPercentDataPoints: [],
+            userRole: null
         };
     }
 
     componentDidMount() {
         this.fetchInternetUsersData();
+        this.fetchUserRole();
     }
 
     componentDidUpdate(prevProps) {
@@ -30,7 +32,7 @@ class Graph4 extends Component {
         const currentYear = 2020;
         const yearStart = currentYear - yearRange + 1;
         const yearEnd = currentYear;
-        
+
         try {
             const token = localStorage.getItem('token');
             const response = await axios.get(`http://127.0.0.1:8001/api/internet`, {
@@ -60,8 +62,35 @@ class Graph4 extends Component {
         }
     };
 
+    fetchUserRole = async () => {
+        try {
+            const token = localStorage.getItem('token');
+            const response = await axios.get(`http://127.0.0.1:8001/roles`, {
+                headers: {
+                    'Authorization': `Token ${token}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            const roles = response.data.roles.map(role => role.name);
+            this.setState({ userRole: roles.includes('export') ? 'export' : 'user' });
+        } catch (error) {
+            console.error('Error fetching user groups', error);
+        }
+    };
+
+    downloadDataAsJson = (dataPoints, fileName) => {
+        const blob = new Blob([JSON.stringify(dataPoints, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        URL.revokeObjectURL(url);
+    };
+
     render() {
-        const { internetUsersDataPoints, internetUsersPercentDataPoints } = this.state;
+        const { internetUsersDataPoints, internetUsersPercentDataPoints, userRole } = this.state;
 
         const options1 = {
             title: {
@@ -100,9 +129,25 @@ class Graph4 extends Component {
         return (
             <div>
                 <div className='container'>
+                    {userRole === 'export' && (
+                        <button 
+                        onClick={() => this.downloadDataAsJson(internetUsersDataPoints, 'internet_users_data.json')}
+                        style={{ marginBottom: '20px' }}
+                    >
+                        Download Internet Users Data as JSON
+                    </button>
+                    )}
                     <CanvasJSChart options={options1} />
                 </div>
                 <div className='container'>
+                    {userRole === 'export' && (
+                        <button 
+                        onClick={() => this.downloadDataAsJson(internetUsersPercentDataPoints, 'internet_users_percent_data.json')}
+                        style={{ marginBottom: '20px' }}
+                    >
+                        Download Internet Users Percent Data as JSON
+                    </button>
+                    )}
                     <CanvasJSChart options={options2} />
                 </div>
             </div>

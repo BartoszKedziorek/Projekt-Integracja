@@ -39,7 +39,7 @@ const App = () => {
                 <Routes>
                     <Route path="/login" element={<Login />} />
                     <Route path="/register" element={<Register />} />
-                    <Route path="/graph-comparison" element={isLoggedIn ? <GraphComparison /> : <Navigate to="/login" />} />
+                    <Route path="/graph-comparison" element={isLoggedIn ? <GraphComparison /> : <Navigate to="/graph-comparison" />} />
                 </Routes>
             </div>
         </Router>
