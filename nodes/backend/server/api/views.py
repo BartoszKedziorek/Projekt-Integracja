@@ -214,7 +214,8 @@ class ExtremeMixin(APIView):
         query_year = current_year - int(request.GET['years'])
 
         avg_values = self.model.objects.filter(year__gte=query_year) \
-            .values('country').annotate(avg=Avg(self.value_field))
+            .values('country').annotate(avg=Avg(self.value_field)) \
+            .exclude(country__code__in=('IBT','LMY','MIC','IBD','EAR', 'LMC','EAS','LTE','EAP','TEA'))
             #.order_by('-avg')[:request.GET['amount']]
         
         avg_values = [{
