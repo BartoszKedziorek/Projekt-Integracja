@@ -1,3 +1,8 @@
+# Uruchomienie aplikacji
+W celu uruchomienia aplikacji należy uruchomić serwer back-endu oraz serwer front-endu.
+Instrukcje do uruchomienia serwerów zostały przedstawione poniżej. Do uruchomienia backendu niezbędny
+jest plik compose.env ze zmiennymi środowiskowymi.
+
 ## Uruchomienie servera backend
 ```bash
 mkdir Projekt_IS
