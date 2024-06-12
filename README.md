@@ -22,6 +22,14 @@ Po utworzeniu pliku **compose.env** i ustawieniu w nim zmiennych
 ```bash
 docker compose up --build
 ```
+
+## Uruchomienie servera frontend
+```bash
+cd Projekt_Is
+cd nodes/frontend/
+npm start
+```
+
 Po mniej więcej minucie serwer powinien zostać uruchomiony. Poprawoność działania
 Serwera można sprawdzić pod adresem:
 ```127.0.0.1:8001/api/schema/swagger-ui```<br /><br />
