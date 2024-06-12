@@ -1,4 +1,4 @@
-## Uruchomienie servera
+## Uruchomienie servera backend
 ```bash
 mkdir Projekt_IS
 cd Projekt_Is
