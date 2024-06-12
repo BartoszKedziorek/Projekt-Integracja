@@ -41,7 +41,7 @@ Powinna zostać wyświetlona **dokumentacja API** udostępnianego przez serwer
 
 ## Uruchomienie servera frontend
 ```bash
-cd Projekt_Is
+cd Projekt_IS
 cd nodes/frontend/
 npm start
 ```
